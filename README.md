@@ -98,7 +98,8 @@ $env:PLAYWRIGHT_BROWSERS_PATH = Join-Path $env:AMPULY_HOME 'browsers'
 服务尚未提供，此源码没有为上述计划新增后台采集或自动扣款。安装软件或赞助均
 不自动取得商用授权，也不改变第三方许可证已经授予的权利。
 
-[支持 Ampuly 开发](SPONSORSHIP.zh.md) 是独立、自愿的赞助安排；目前未开通收款渠道。
+[支持 Ampuly 开发](SPONSORSHIP.zh.md)：可通过 [PayPal 官方入口](https://www.paypal.com/ncp/payment/WFVSM8PJC8TG6)
+以 USD 自选金额一次性支持维护与改进，不自动续费，不附带额外商用许可。国内收款渠道后续补充。
 
 ## 可选联网功能
 
