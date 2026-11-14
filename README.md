@@ -1,5 +1,7 @@
 # Ampuly Engine / 安普里引擎
 
+简体中文 | [English](README.en.md)
+
 > **源码可见、附条件商用。** 安普里原创部分适用 [LICENSE](LICENSE)，
 > 上游及第三方权利继续保留，见 [NOTICE.md](NOTICE.md)。本项目不宣称采用 OSI
 > 批准的开源许可；此源码快照面向开发者评估，不是经过完整验收的安装器。
@@ -15,7 +17,8 @@ Python 环境与已构建的前端也没有随源码提供。
 ## 开发环境准备
 
 以下命令供开发者在**新建检出目录**中手动执行，不是发布准备工作已经执行的记录。
-使用 Python 3.12 和支持 Vite 7 的 Node.js / npm；项目声明的最低 Python 版本为 3.10。
+建议使用已验证的 Python 3.12；项目声明的最低 Python 版本为 3.10。
+前端需要 Node.js `^20.19.0 || >=22.12.0` 和 npm。
 依赖安装会联网下载软件。请先审阅 `pyproject.toml`、前端 `package.json` 与
 `package-lock.json`，再决定是否安装。
 
@@ -82,10 +85,35 @@ $env:PLAYWRIGHT_BROWSERS_PATH = Join-Path $env:AMPULY_HOME 'browsers'
 - `licenses/`：额外第三方许可全文。
 
 业务流程由使用者自行创建或按单独授权导入。此稿不包含预置的私有 VI 业务流程。
-安全边界和报告方式见 [SECURITY.md](SECURITY.md)。本次仅完成发布路径边界测试、
-源码静态检查和隔离的 CLI 加载检查，未进行完整系统回归或生产验收。离线前端构建
-完成了源码转换，但在压缩输出阶段遇到本机 esbuild 临时文件访问错误，完整构建
-仍未验证通过；wheel 与安装器也未验证。开发者应在自己的隔离环境完成构建与评估。
+安全边界和报告方式见 [SECURITY.md](SECURITY.md)。
+
+## 验证状态（2026-11-14）
+
+针对公开源码提交 `be6d2bc219be338bdf2220efbb2128215722f4d9`，我们在 Windows
+新建测试环境中使用 Python 3.12、Node.js 22.23.1 和合成数据完成了以下检查：
+
+- 新建虚拟环境中的依赖安装与 `pip check`。
+- 前端 `npm ci` / `npm run build`、Python wheel 构建与资源检查。
+- 本地控制台的健康检查、首页和静态资源访问，以及首次建号、登录、创建和列出空白项目。
+
+这些结果只覆盖基础流程，**整体验收尚未通过**。受控检查还发现后台通知/中继组件
+尝试查找 Windows 用户配置（注册表）；检查在读取值之前阻断了这些请求。上面的数据目录
+设置不构成操作系统沙箱，不能据此承诺默认完全隔离或完全离线。可编辑安装还出现了
+残留任务进程，已在测试结束时停止。不要用生产账号或真实业务数据进行首次评估。
+
+wheel 不含已构建的前端或独立运行时；控制台检查使用了另外构建的源码前端。当前尚未
+验证真实模型/外部 Agent 完整流程、生产业务流程、浏览器端到端交互、第二台实体电脑
+安装或完整系统回归。这里没有一键安装器，也没有完整冻结的 Python 依赖锁。
+
+## 参与试用与反馈
+
+欢迎熟悉 Python/Node 的开发者从空白项目和合成数据开始评估。
+在 [Discussions](https://github.com/amplichina/ampuly-engine-source/discussions) 交流使用场景、
+安装体验和设计建议；可复现缺陷请提交 [Issue](https://github.com/amplichina/ampuly-engine-source/issues)。
+
+反馈时请注明系统、Python/Node 版本、源码提交、复现步骤和预期/实际结果。只附最小化、
+脱敏的错误片段，不要上传密钥、配置文件、数据库、账号信息或私有业务流。安全问题请
+遵循 [SECURITY.md](SECURITY.md)。
 
 ## 商用许可与开发赞助
 
