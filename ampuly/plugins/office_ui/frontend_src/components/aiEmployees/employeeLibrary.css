@@ -1,0 +1,39 @@
+/* Host imports this alongside its existing console CSS. No global selectors or canvas overrides. */
+.ai-employee-library, .ai-employee-shelf { color: var(--text); font-size: 13px; line-height: 1.55; min-width: 0; overflow-wrap: anywhere; }
+.ai-employee-library { display: grid; gap: 14px; }
+.ai-employee-library h2, .ai-employee-library h3, .ai-employee-library h4, .ai-employee-library p,
+.ai-employee-shelf h3, .ai-employee-shelf p { margin: 0; }
+.ai-employee-library h2 { font-size: 18px; }
+.ai-employee-library h3 { font-size: 16px; }
+.ai-employee-library h4, .ai-employee-shelf h3 { font-size: 13px; }
+.ai-employee-library__header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: start; gap: 10px; }
+.ai-employee-library__muted, .ai-employee-shelf__muted { color: var(--text-secondary); font-size: 12px; }
+.ai-employee-library__layout { display: grid; grid-template-columns: minmax(200px, .7fr) minmax(0, 1.5fr); gap: 16px; align-items: start; }
+.ai-employee-library__list, .ai-employee-shelf__list { display: grid; gap: 10px; }
+.ai-employee-library__card, .ai-employee-shelf__card { border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); padding: 12px; display: grid; gap: 6px; }
+.ai-employee-library__card[data-selected="true"], .ai-employee-shelf__card[data-selected="true"] { border-color: var(--accent); }
+.ai-employee-library__detail { display: grid; gap: 18px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
+.ai-employee-library__facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.ai-employee-library__facts > section { border-left: 2px solid var(--border); padding-left: 10px; }
+.ai-employee-library__states, .ai-employee-library__actions, .ai-employee-shelf__actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: start; }
+.ai-employee-library__states > span { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xs); padding: 3px 8px; }
+.ai-employee-library__states [data-ready="true"], .ai-employee-shelf__card[data-ready="true"] .ai-employee-shelf__title > span { color: var(--green); }
+.ai-employee-library__instance { background: var(--surface); border-radius: var(--radius-sm); padding: 12px; margin-top: 8px; }
+.ai-employee-library__action { display: grid; gap: 4px; max-width: 240px; }
+.ai-employee-library__action small, .ai-employee-shelf small { font-size: 11px; color: var(--text-secondary); }
+.ai-employee-library label, .ai-employee-shelf label { display: grid; gap: 5px; }
+.ai-employee-library input, .ai-employee-library select, .ai-employee-shelf input { width: 100%; min-width: 0; border: 1px solid var(--border); border-radius: var(--radius-xs); background: var(--bg); color: var(--text); padding: 8px 10px; font: inherit; }
+.ai-employee-library button, .ai-employee-shelf button { border: 1px solid var(--border); border-radius: var(--radius-xs); background: var(--surface); color: var(--text); padding: 6px 10px; font: inherit; cursor: pointer; }
+.ai-employee-library button:hover:not(:disabled), .ai-employee-shelf button:hover:not(:disabled) { background: var(--surface-hover); border-color: var(--border-hover); }
+.ai-employee-library button:disabled, .ai-employee-library input:disabled, .ai-employee-library select:disabled, .ai-employee-shelf button:disabled, .ai-employee-shelf input:disabled { opacity: .6; cursor: not-allowed; }
+.ai-employee-library button:focus-visible, .ai-employee-library input:focus-visible, .ai-employee-library select:focus-visible, .ai-employee-library summary:focus-visible, .ai-employee-shelf input:focus-visible, .ai-employee-shelf button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ai-employee-library__select { display: flex; justify-content: space-between; gap: 8px; width: 100%; text-align: left; }
+.ai-employee-library ul { margin: 6px 0 0; padding-left: 18px; }
+.ai-employee-library details { border-top: 1px solid var(--border); padding-top: 10px; }
+.ai-employee-library summary { cursor: pointer; font-weight: 600; margin-bottom: 8px; }
+.ai-employee-shelf { padding: 12px; display: grid; gap: 12px; }
+.ai-employee-shelf__title { display: flex; justify-content: space-between; gap: 8px; }
+.ai-employee-shelf__title > span { font-size: 11px; color: var(--text-secondary); }
+.ai-employee-shelf__card[draggable="true"] { cursor: grab; }
+.ai-employee-shelf__card[draggable="true"]:active { cursor: grabbing; }
+@media (max-width: 760px) { .ai-employee-library__layout, .ai-employee-library__facts { grid-template-columns: minmax(0, 1fr); } .ai-employee-library__detail { padding: 12px; } }

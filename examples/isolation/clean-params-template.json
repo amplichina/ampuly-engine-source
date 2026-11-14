@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "rules_version": "g2-bla-drift-gate-v1",
+  "template_id": "g2-clean-params-v1",
+  "purpose_zh": "隔离样本规划用的干净参数模板；记录原产物身份与恢复所需字段。本模板不执行加固或包管理安装。",
+  "execution_forbidden": true,
+  "install_forbidden": true,
+  "business_ampuly_forbidden": true,
+  "clean_artifact": {
+    "relative_path": "examples/isolation/sample-clean.txt",
+    "format": "txt",
+    "content_sha256": null,
+    "recorded_at": null
+  },
+  "parameters": {
+    "tool": "bla-agents",
+    "reviewed_commit": "71cf950485bb267bb13a7c0405ef05ddab65b559",
+    "npm_version_locked": "1.1.0",
+    "source_version_at_commit": "1.5.2",
+    "alignment_required_before_install": true,
+    "command_class": "none",
+    "harden_flags": [],
+    "setup_mcp": false,
+    "output_dir": null
+  },
+  "report_fields": {
+    "clean_hash_before": null,
+    "protected_hash_after": null,
+    "restore_verified": false,
+    "format_promoted": false,
+    "gaps": [
+      "npm_version_drift_source_1_5_2_vs_published_1_1_0"
+    ]
+  },
+  "restore": {
+    "strategy": "replace_protected_with_clean_copy",
+    "requires_clean_copy_retained": true,
+    "requires_index_or_signature_pair": true,
+    "auto_restore": false
+  }
+}

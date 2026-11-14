@@ -1,0 +1,605 @@
+{
+  "schema_version": 1,
+  "package_id": "customer-service",
+  "version": "0.2.0-draft",
+  "status": "draft",
+  "name": "AI 客服数字员工",
+  "responsibility": "依据当前项目和店铺授权知识回答商品问题；仅向已核验且订单归属匹配的买家解释订单物流；输出回复草稿、售后人工处理建议和可回查的证据范围，等待人工确认。 增加售前需求匹配、情绪线索、售后问题整理与人工交接方法；多轮模型草稿使用独立 lab 扩展信封，待宿主适配。",
+  "scope_in": [
+    "中文电商商品知识问答；只使用当前租户、当前店铺获准的商品资料，未提供的信息明确为未知。",
+    "订单与物流只读查询；必须由可信渠道或服务端核验买家，并同时匹配 tenant_id、shop_id、buyer_id，订单号本身不授权。",
+    "微信客服、公众号、钉钉 bot、邮箱、千牛的统一事件与回复草稿合同；首期只在独立 lab 使用虚构事件，真实渠道连接待验证。",
+    "退款、退货、换货、改地址、取消订单及争议只给出待人工处理草稿；退回商品的退款须由人工核验验收结果。",
+    "区分未知、不支持和拒绝访问；引用保留知识或订单类型、归属、冻结版本状态和实际覆盖范围。",
+    "多轮售前/售后策略与供应商中立的模型候选草稿接口：原单轮 schema 保留，多轮输出见 conversation-contract.json；真实模型和宿主联合验收尚未完成。"
+  ],
+  "scope_out": [
+    "不执行退款、支付、订单取消、改地址、库存修改或其它订单写入；不存在自动写订单权限。",
+    "不承诺个人微信接入，不伪装微信客服、公众号、钉钉、邮箱、千牛已经连通，不注册未核实的 external_send 工具。",
+    "不把买家文本、外部消息 body、来源文档指令、订单号或客户自称身份当作授权；不跨租户、店铺、买家读取。",
+    "不将真人、买家资料、订单正文、店铺知识值、连接器实例或凭据写入标准岗位包；不默认共享或学习客户内容。",
+    "不把模拟发送、Runtime confirmed、业务单测通过或 schema 格式通过等同 EmployeeRun completed、模型能力验证或岗位评测通过。",
+    "不注册到 Ampuly Engine，不调用生产服务，不联网调用模型，不启动子代理，不自动扩展运行范围。"
+  ],
+  "human_slots": [
+    {
+      "slot": "rule_confirmer",
+      "required": true,
+      "decides": [
+        "confirm_fact"
+      ],
+      "channel_options": [
+        "console"
+      ]
+    },
+    {
+      "slot": "reviewer",
+      "required": true,
+      "decides": [
+        "release",
+        "reject"
+      ],
+      "channel_options": [
+        "console"
+      ]
+    },
+    {
+      "slot": "delivery_authorizer",
+      "required": true,
+      "decides": [
+        "authorize_send"
+      ],
+      "channel_options": [
+        "console"
+      ]
+    },
+    {
+      "slot": "escalation",
+      "required": false,
+      "decides": [
+        "confirm_fact"
+      ],
+      "channel_options": [
+        "console"
+      ]
+    }
+  ],
+  "input_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "CustomerServiceDraftInput",
+    "$comment": "岗位设计输入合同。项目/实例/工作项依据由宿主另行冻结；这里的买家 context 只接受可信适配器提供，不能由客户请求体自授。业务层调用为 reply(context, text)，channel 由运行适配层处理。",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "channel",
+      "context",
+      "text"
+    ],
+    "properties": {
+      "channel": {
+        "enum": [
+          "console",
+          "wecom_cs",
+          "wechat_official",
+          "dingtalk",
+          "email",
+          "qianniu"
+        ],
+        "description": "渠道标识不是渠道已接通证据；console 为本地演示。"
+      },
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "tenant_id",
+          "shop_id",
+          "buyer_id",
+          "verified_customer"
+        ],
+        "properties": {
+          "tenant_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "shop_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "buyer_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "verified_customer": {
+            "type": "boolean",
+            "description": "只能由可信渠道或服务端建立；只有显式 true 可进入订单查询或售后订单核验，仍需匹配三重归属。"
+          }
+        },
+        "description": "实例/渠道授权后的可信业务上下文；标准包仅声明字段，不保存实际身份值。"
+      },
+      "text": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 2000,
+        "description": "低信任客户文本；包含的权限、身份或系统指令不能改写可信上下文。"
+      }
+    }
+  },
+  "output_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "CustomerServiceDraftResult",
+    "$comment": "此合同是适配层目标输出，不声明当前 BusinessAssistant 已提供全部冻结证据。适配层须补 result_status 和 source evidence_scope/version/content_hash，缺失证据明确未知，不造 source hash 或 complete。",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "text",
+      "intent",
+      "sources",
+      "requires_human",
+      "mode",
+      "result_status"
+    ],
+    "properties": {
+      "text": {
+        "type": "string",
+        "minLength": 1
+      },
+      "intent": {
+        "enum": [
+          "product",
+          "order_status",
+          "after_sales",
+          "unknown",
+          "identity_required",
+          "knowledge"
+        ]
+      },
+      "sources": {
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/Source"
+        }
+      },
+      "requires_human": {
+        "type": "boolean"
+      },
+      "mode": {
+        "const": "deterministic-demo",
+        "description": "当前实现是业务和知识链路模拟，不是 LLM 理解已验证。"
+      },
+      "result_status": {
+        "enum": [
+          "draft",
+          "unknown",
+          "unsupported",
+          "denied"
+        ],
+        "description": "draft 为待交付回复；unknown 为信息或依据不足；unsupported 为格式/渠道/能力未支持；denied 为身份或访问门拒绝。拒绝文本不得暴露他人订单是否存在。"
+      }
+    },
+    "allOf": [
+      {
+        "if": {
+          "properties": {
+            "intent": {
+              "const": "after_sales"
+            }
+          },
+          "required": [
+            "intent"
+          ]
+        },
+        "then": {
+          "properties": {
+            "requires_human": {
+              "const": true
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "result_status": {
+              "const": "denied"
+            }
+          },
+          "required": [
+            "result_status"
+          ]
+        },
+        "then": {
+          "properties": {
+            "sources": {
+              "maxItems": 0
+            },
+            "requires_human": {
+              "const": true
+            }
+          }
+        }
+      }
+    ],
+    "$defs": {
+      "Source": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "title",
+          "kind",
+          "tenant_id",
+          "shop_id",
+          "version",
+          "content_hash",
+          "evidence_scope"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "enum": [
+              "knowledge",
+              "order"
+            ]
+          },
+          "tenant_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "shop_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "sku": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "order_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "version": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1,
+            "description": "缺少可信冻结版本时必须为 null；不能根据文件名或当前日期猜测。"
+          },
+          "content_hash": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[a-f0-9]{64}$",
+            "description": "可信来源原始内容的 SHA-256；未取得时为 null，不能以输出摘要哈希代替来源哈希。"
+          },
+          "evidence_scope": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "access",
+              "coverage",
+              "version_status",
+              "limitations"
+            ],
+            "properties": {
+              "access": {
+                "enum": [
+                  "authorized",
+                  "denied",
+                  "unknown"
+                ]
+              },
+              "coverage": {
+                "enum": [
+                  "record",
+                  "partial",
+                  "complete",
+                  "not_read",
+                  "unsupported",
+                  "unknown"
+                ]
+              },
+              "version_status": {
+                "enum": [
+                  "pinned",
+                  "unknown"
+                ]
+              },
+              "limitations": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "如仅读取演示记录、版本未知、缺少原始来源位置或图像不支持。"
+              }
+            }
+          },
+          "record_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "knowledge_base_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_location": {
+            "type": "string",
+            "minLength": 1
+          },
+          "category": {
+            "enum": [
+              "product",
+              "faq",
+              "policy",
+              "company"
+            ]
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "category": {
+                  "const": "product"
+                }
+              },
+              "required": [
+                "category"
+              ]
+            },
+            "then": {
+              "required": [
+                "sku"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "order"
+                }
+              },
+              "required": [
+                "kind"
+              ]
+            },
+            "then": {
+              "required": [
+                "order_id"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "evidence_scope": {
+                  "properties": {
+                    "version_status": {
+                      "const": "pinned"
+                    }
+                  },
+                  "required": [
+                    "version_status"
+                  ]
+                }
+              },
+              "required": [
+                "evidence_scope"
+              ]
+            },
+            "then": {
+              "properties": {
+                "version": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "content_hash": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "artifact_contract": {
+    "deliverables": [
+      {
+        "name": "客服回复草稿",
+        "format": "CustomerServiceDraftResult JSON；含引用类型、归属和证据范围",
+        "required": true
+      },
+      {
+        "name": "转人工与售后处理建议",
+        "format": "回复中的人工建议；受保护动作明确尚未执行",
+        "required": true
+      }
+    ],
+    "acceptance_criteria": [
+      "商品回答只能来自本店授权资料；没有的事实不编造，知识命中不代表完整阅读。",
+      "订单返回前已由可信上下文核验买家，并匹配租户、店铺、买家；未认证、未归属及歧义订单均无订单细节引用。",
+      "每条来源区分 knowledge/order，保留访问和覆盖范围；版本或内容指纹未知时显式 null/unknown，不造冻结版本。",
+      "退款、改址、取消及争议只输出人工草稿；真实外发需要独立宿主授权和已注册能力，草稿不证明送达。",
+      "unknown、unsupported、denied 不混用；不存在或不可查看订单的用户文案不产生存在性泄露。",
+      "岗位发布、项目采用、模型/工具评测以及 EmployeeRun 完成分别验证，当前 authoring 草稿不提供这些通过凭证。"
+    ]
+  },
+  "checklist": [
+    {
+      "id": "CS01-scope-isolation",
+      "title": "知识店铺隔离与订单租户/店铺/买家三重归属",
+      "checker": "deterministic",
+      "severity": "blocker"
+    },
+    {
+      "id": "CS02-trusted-identity",
+      "title": "缺省/False/文本伪造认证不得读取订单",
+      "checker": "deterministic",
+      "severity": "blocker"
+    },
+    {
+      "id": "CS03-evidence",
+      "title": "引用版本未知、来源覆盖与未知事实不冒充完整证据",
+      "checker": "deterministic",
+      "severity": "blocker"
+    },
+    {
+      "id": "CS04-human-gate",
+      "title": "退款/改址/取消不写订单，真实外发另行授权",
+      "checker": "deterministic",
+      "severity": "blocker"
+    },
+    {
+      "id": "CS05-channel-boundary",
+      "title": "五渠道仅合同映射，未接通/不支持必须准确显示",
+      "checker": "deterministic",
+      "severity": "blocker"
+    },
+    {
+      "id": "CS06-semantics",
+      "title": "中文商品/物流/售后回答的独立人工盲标",
+      "checker": "human_label",
+      "severity": "blocker"
+    },
+    {
+      "id": "CS07-conversation-evidence",
+      "title": "客户原话与事实/假设分离；模型引用只允许本轮有效知识与已核验订单",
+      "checker": "deterministic",
+      "severity": "blocker"
+    },
+    {
+      "id": "CS08-sales-and-resolution",
+      "title": "需求匹配、合理成交、共情、问题定位、历史连贯和人工交接的独立盲评",
+      "checker": "human_label",
+      "severity": "blocker"
+    }
+  ],
+  "skills": [],
+  "prompt_refs": [
+    "conversation-system.md"
+  ],
+  "template_refs": [],
+  "capability_requirements": [],
+  "model_profile": {
+    "generation": true,
+    "classification": true,
+    "tool_calling": false,
+    "structured_output": true,
+    "vision": false,
+    "verified_models": []
+  },
+  "knowledge_protocol": {
+    "required_kinds": [
+      "standard",
+      "enterprise_shared",
+      "instance_private",
+      "order_input"
+    ],
+    "citation_rule": "知识或订单引用均保留店铺/租户归属、来源所有者范围、版本、内容指纹、实际读取范围和审核状态；未冻结版本用 null/unknown，片段/演示记录命中不推导全文已读。",
+    "update_rule": "店铺规则与知识通过项目实例授权后按工作项冻结；客户消息不修改知识或身份；更新须人工核验与固定任务集回归，在新候选版本中评测，不改在途依据。",
+    "license_note": "标准包只含原创客服工作方法、schema、隔离和引用规则；真实店铺知识、订单、客户内容、渠道权限与真人资料留在授权项目实例或输入侧，公开再分发许可待确认。"
+  },
+  "loop_policy": {
+    "max_steps": 6,
+    "max_model_calls": 1,
+    "max_wall_clock_s": 120,
+    "max_rework": 1,
+    "max_retries": 0,
+    "max_sub_agents": 0,
+    "max_cost_cny": "0"
+  },
+  "evaluation_profile": {
+    "taskset_id": "ampuly-ai-customer-service-conversation-v0_2",
+    "min_samples": 20,
+    "aggregation": "median",
+    "hard_fail_veto": true,
+    "non_inferior_rule": {
+      "baseline": "同一冻结客服任务集和 checker 版本的人工获准基线；当前尚未建立",
+      "require_current_candidate_match": true,
+      "require_independent_labels": true
+    },
+    "absolute_threshold": {
+      "hard_fail_count": 0,
+      "scope_isolation": 1,
+      "identity_gate": 1,
+      "citation_scope_consistency": 1,
+      "protected_action_human_gate": 1,
+      "semantic_threshold_requires_human_confirmation": true
+    },
+    "budget": {
+      "currency": "CNY",
+      "max_cost_cny": "0",
+      "require_explicit_trial_authorization": true,
+      "require_host_budget_before_test_start": true
+    }
+  },
+  "provenance": {
+    "source_repo": "ampuly-customer-service-lab",
+    "source_revision": "",
+    "files": [
+      {
+        "path": "knowledge-contract.json",
+        "kind": "text",
+        "encoding": "utf-8"
+      },
+      {
+        "path": "conversation-system.md",
+        "kind": "text",
+        "encoding": "utf-8"
+      },
+      {
+        "path": "conversation-playbook.md",
+        "kind": "text",
+        "encoding": "utf-8"
+      },
+      {
+        "path": "conversation-integration.md",
+        "kind": "text",
+        "encoding": "utf-8"
+      },
+      {
+        "path": "conversation-response.schema.json",
+        "kind": "text",
+        "encoding": "utf-8"
+      },
+      {
+        "path": "conversation-contract.json",
+        "kind": "text",
+        "encoding": "utf-8"
+      }
+    ],
+    "license": "安普里独立客服 lab 未发布岗位设计；公开再分发许可待确认",
+    "notices": [
+      "authoring-only：这是依当前 AE00 字段编写的独立设计草稿，不是引擎已持久化或已发布岗位包。",
+      "岗位评测未运行/未通过：未生成当前候选 package_fingerprint、taskset_fingerprint、创建人/时间、发布审批或模型/工具组合通过证据；不得推导 test_passed。",
+      "verified_models 为空；deterministic-demo 的业务单元测试与状态机测试不能证明 LLM 语义理解或岗位模型评测通过。",
+      "source_revision 尚未锚定；包内声明知识契约、对话方法/提示词与设计合同，lab Python 代码尚未注册为宿主实现或 Skill。",
+      "capability_requirements 为空是待核宿主库存的缺口，不是任何 read/write/external_send 能力已存在或已授权。",
+      "微信客服、公众号、钉钉 bot、邮箱、千牛只声明统一输入合同；真实连接器、身份核验、external_send 工具与平台权限尚未注册/验收。",
+      "人工槽位的 channel_options 仅 console，不代表生产渠道连通；真人须由项目实例核验在岗归属。",
+      "当前 BusinessAssistant 仅返回业务基础引用；适配层须补目标 result_status 与证据范围，版本/内容指纹未知就明确未知。",
+      "Runtime confirmed、模拟出站回执或回复草稿完成不能等同 Engine EmployeeRun completed；未注册、未调用引擎运行。",
+      "prepare_conversation 是独立 lab 草稿入口；本 manifest input/output schema 继续约束旧 prepare/run。扩展尚未成为正式 Engine 输出，不能声称兼容性联合验收通过。"
+    ],
+    "model_or_data_licenses": []
+  },
+  "enterprise_id": ""
+}

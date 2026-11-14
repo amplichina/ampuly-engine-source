@@ -1,0 +1,9 @@
+.canvas-employee-host { padding: 10px 8px; border-bottom: 1px solid var(--border, #dce4ef); }
+.canvas-employee-host button { font-size: 12px; margin: 4px 4px 4px 0; }
+.canvas-employee-binding { margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--border, #dce4ef); }
+.canvas-employee-binding label { display: grid; gap: 4px; margin: 8px 0; }
+.canvas-employee-binding textarea { width: 100%; min-height: 70px; box-sizing: border-box; resize: vertical; }
+.wf-employee-placement { position: absolute; z-index: 45; top: 74px; left: 50%; transform: translateX(-50%); width: min(360px, 80%); padding: 16px; border-radius: 12px; border: 1px solid var(--border, #dce4ef); background: var(--surface, #fff); color: var(--text, #17324f); box-shadow: 0 8px 32px #16355528; }
+.wf-employee-placement h4 { margin: 0 0 8px; }
+.wf-employee-placement p { font-size: 13px; }
+.wf-employee-placement button { margin: 5px 6px 0 0; }

@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "contract_id": "customer-service-knowledge-authoring-v1",
+  "status": "authoring",
+  "purpose": "AI 客服岗位的标准知识、授权与引文工作方法；这是 lab 独立设计文件，不是 EmployeeInstance、EmployeeRun 或生产授权记录。",
+  "validation_state": {
+    "package_contract_executed": false,
+    "engine_registered": false,
+    "model_understanding_verified": false,
+    "employee_evaluation_outcome": "not_run",
+    "publication_outcome": "not_requested",
+    "limitation": "仅核对源码字段和本地 JSON 结构；业务单测通过不推导岗位 test_passed。"
+  },
+  "reference_contracts": [
+    {
+      "path": "docs/AI-EMPLOYEE-AE00-CONTRACT-2026-10-07.zh.md",
+      "sha256": "a6fd1d80515b656f1894e30c2d44de37e9e0174a727d9dc2820cf004d5798b45"
+    },
+    {
+      "path": "docs/ai-employees/packages/material-review/package.draft.json",
+      "sha256": "fddcab01b13902ab3b07f092740f6a698eaf86bdb2032e6aca77601d517ea8f9"
+    },
+    {
+      "path": "opc/plugins/office_ui/ai_employee_contract.py",
+      "sha256": "5b1178c9d0957ce80fb64df420c808da71692302d57e7785e099b78dae8048ec"
+    },
+    {
+      "path": "opc/plugins/office_ui/ai_employee_instance_contract.py",
+      "sha256": "dd4797f51386d4500280fb09e47f548043c046af3db4944ab720c741f115d6fe"
+    }
+  ],
+  "layers": [
+    {
+      "kind": "standard",
+      "purpose": "岗位公共工作方法、隔离/引用/未知处理规则",
+      "data_rule": "不含真实企业、客户、店铺和订单值，不包含平台凭据。"
+    },
+    {
+      "kind": "enterprise_shared",
+      "purpose": "经企业和项目授权的店铺商品与售后规则引用",
+      "data_rule": "按 tenant_id 与 shop_id 过滤；须明确授权、来源审核、有效版本，不默认跨店共享。"
+    },
+    {
+      "kind": "instance_private",
+      "purpose": "本岗位实例可访问的店铺配置、人工职责和连接引用",
+      "data_rule": "仅保存批准的引用；实际真人和连接器分工在 EmployeeInstance，不能进入标准岗位包。"
+    },
+    {
+      "kind": "order_input",
+      "purpose": "当前客服请求及可信宿主提供的身份/只读订单观察",
+      "data_rule": "客户文本低信任；订单号不能授权，必须有 verified_customer 的可信真值并匹配三重归属。"
+    }
+  ],
+  "identity_rules": {
+    "trusted_context_fields": [
+      "tenant_id",
+      "shop_id",
+      "buyer_id",
+      "verified_customer"
+    ],
+    "verification_rule": "订单读取与售后订单核验要求 verified_customer is True；该值只能由可信渠道适配器或服务端建立，不接受客户文本或外部 body 的自授标记。",
+    "ownership_rule": "订单必须同时匹配 tenant_id、shop_id、buyer_id。相同订单号跨店、跨租户或跨买家不共享授权。",
+    "public_product_rule": "当前店铺获准的商品知识可在买家未核验时答复；无店铺作用域不检索。",
+    "refusal_rule": "无认证返回 denied；未找到唯一可查看记录返回 unknown。对不存在和不归属订单保持同样用户文案和空来源，避免存在性泄露。",
+    "engine_project_rule": "宿主另外核验 AE00 project_id/instance_id 的项目归属；业务 tenant/shop/buyer 键不替代引擎项目与实例授权。"
+  },
+  "citation_contract": {
+    "business_source_fields": [
+      "id",
+      "title",
+      "kind",
+      "tenant_id",
+      "shop_id",
+      "sku",
+      "order_id",
+      "category",
+      "record_id",
+      "knowledge_base_id",
+      "source_location"
+    ],
+    "target_source_fields": [
+      "version",
+      "content_hash",
+      "evidence_scope"
+    ],
+    "kinds": [
+      "knowledge",
+      "order"
+    ],
+    "access_states": [
+      "authorized",
+      "denied",
+      "unknown"
+    ],
+    "coverage_states": [
+      "record",
+      "partial",
+      "complete",
+      "not_read",
+      "unsupported",
+      "unknown"
+    ],
+    "version_states": [
+      "pinned",
+      "unknown"
+    ],
+    "unknown_rule": "没有来源冻结版本或原始内容哈希时，version/content_hash 为 null、version_status 为 unknown；不得计算回复文本的哈希冒充来源哈希。",
+    "complete_rule": "只有可信读取工具证据覆盖冻结来源全文时才允许 complete；当前纯虚构字典最多声称 record。",
+    "location_rule": "需要原文定位的交付必须保留可信来源位置；当前基础引用没有原文位置，适配层需声明 limitations，不自行补造。",
+    "conflict_rule": "同店多个版本冲突或商品映射歧义不猜优先级，说明未知并转人工核验。",
+    "business_adapter_gap": "KnowledgeAssistant 通过本地配置加载器补齐来源版本、正文hash、记录位置与evidence_scope；原始BusinessAssistant字典引用仍为未知版本。所有来源访问均不冒充宿主授权。"
+  },
+  "channel_contract": [
+    {
+      "channel": "console",
+      "state": "local_demo_only",
+      "purpose": "本地虚构输入和回复草稿演示"
+    },
+    {
+      "channel": "wecom_cs",
+      "state": "planned_not_connected",
+      "purpose": "微信客服事件与身份核验适配"
+    },
+    {
+      "channel": "wechat_official",
+      "state": "planned_not_connected",
+      "purpose": "公众号客服事件与身份核验适配"
+    },
+    {
+      "channel": "dingtalk",
+      "state": "planned_not_connected",
+      "purpose": "钉钉 bot 事件与身份核验适配"
+    },
+    {
+      "channel": "email",
+      "state": "planned_not_connected",
+      "purpose": "邮箱工单与回复草稿适配；邮箱地址不自动等于买家认证"
+    },
+    {
+      "channel": "qianniu",
+      "state": "planned_not_connected",
+      "purpose": "千牛事件与平台许可适配"
+    }
+  ],
+  "unsupported_channels": [
+    "personal_wechat"
+  ],
+  "standard_method": [
+    "先确认宿主解析的项目、实例、渠道及店铺作用域，再读取明确获准资料。",
+    "商品问题只从当前店铺知识取值；资料缺项、版本冲突、不支持内容分别说明，不补造事实。",
+    "订单与物流先核验可信买家真值，再查三重归属；有歧义先澄清，不以订单号、客户自称或提示注入放行。",
+    "退款、改址、取消、退换及争议形成尚未执行的人工草稿；退回商品先验收再由人工决定退款。",
+    "生成回复时附知识/订单类型、访问范围、覆盖范围和版本状态；未知证据留空并解释限制。",
+    "只交付草稿或转人工建议；模拟回执与平台真实送达分开，真实外发须单独授权和已验证能力。",
+    "学习、更新、跨店共享或模型调用不得默认触发；更改知识方法须成新候选并重做固定评测。"
+  ],
+  "protected_operations": {
+    "always_human_draft": [
+      "refund",
+      "return",
+      "exchange",
+      "change_address",
+      "cancel_order",
+      "dispute"
+    ],
+    "order_write_allowed": false,
+    "real_payment_allowed": false,
+    "real_refund_allowed": false,
+    "external_send_rule": "真实发送能力尚未注册。仅有 reviewer 放行不自动获得发送许可；必须另有 delivery_authorizer/可信宿主发送政策授权及相应工具授权。"
+  },
+  "authoring_gaps": [
+    "当前候选内容指纹、冻结任务集指纹与来源修订未建立。",
+    "项目采用、真实在岗人槽、当前模型/工具组合验证、预算与权限观察未接入。",
+    "五个真实渠道的连接、身份认证、回执和失败恢复未验收。",
+    "该文件只提供公共设计方法；lab 业务代码尚未被声明为包内实现或完整 Skill 树。",
+    "未调用引擎合同校验器或发布流程；authoring 状态不能成为 published 或 test_passed。",
+    "已提供本地记录正文位置与hash快照；正式知识注册、项目授权、版本唯一性、发布与撤销仍待宿主接入。"
+  ],
+  "runtime_boundary": "独立 lab；Runtime confirmed 不代表 Engine EmployeeRun completed；没有写入或注册引擎。",
+  "configuration_runtime": {
+    "schema_version": "ampuly.cs.knowledge/1",
+    "implementation": "ampuly_cs/knowledge.py",
+    "editor": "knowledge/editor.html",
+    "template": "knowledge/ecommerce-demo.json",
+    "mode": "demo",
+    "scope": "one tenant + one shop per configuration; channel filtering before retrieval",
+    "review": "local content-bound review only; not authenticated host approval",
+    "validity_timezone": "Asia/Shanghai",
+    "validity_rule": "valid_from inclusive, valid_until exclusive, YYYY-MM-DD; null is unbounded",
+    "retrieval": "deterministic SKU/name/alias and curated question/keyword matching; not embeddings or LLM",
+    "limits": {
+      "max_bytes": 1048576,
+      "max_records": 200,
+      "source_chars": 12000,
+      "answer_chars": 2000
+    }
+  }
+}

@@ -1,0 +1,513 @@
+{
+  "type": "object",
+  "properties": {
+    "stage": {
+      "type": "string",
+      "enum": [
+        "presales",
+        "aftersales",
+        "mixed",
+        "clarify"
+      ]
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 600
+    },
+    "needs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "statement": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 400
+          },
+          "basis": {
+            "type": "string",
+            "enum": [
+              "stated",
+              "hypothesis"
+            ]
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "turn_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                },
+                "quote": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 500
+                }
+              },
+              "required": [
+                "turn_id",
+                "quote"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 3
+          }
+        },
+        "required": [
+          "statement",
+          "basis",
+          "evidence"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 8
+    },
+    "emotion": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "type": "string",
+          "enum": [
+            "neutral",
+            "uncertain",
+            "frustrated",
+            "angry",
+            "distressed",
+            "positive"
+          ]
+        },
+        "confidence": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium"
+          ]
+        },
+        "cues": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "turn_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "quote": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              }
+            },
+            "required": [
+              "turn_id",
+              "quote"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0,
+          "maxItems": 3
+        },
+        "response_strategy": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 400
+        }
+      },
+      "required": [
+        "label",
+        "confidence",
+        "cues",
+        "response_strategy"
+      ],
+      "additionalProperties": false
+    },
+    "missing_information": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 200
+      },
+      "minItems": 0,
+      "maxItems": 6
+    },
+    "reply": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1200
+    },
+    "questions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 200
+      },
+      "minItems": 0,
+      "maxItems": 2
+    },
+    "recommendations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 400
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 400
+          },
+          "tradeoff": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 400
+          }
+        },
+        "required": [
+          "source_id",
+          "reason",
+          "tradeoff"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 3
+    },
+    "next_action": {
+      "type": "string",
+      "enum": [
+        "clarify",
+        "recommend",
+        "invite_purchase",
+        "troubleshoot",
+        "verify_identity",
+        "handoff",
+        "await_customer"
+      ]
+    },
+    "citations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 400
+          },
+          "quote": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1500
+          }
+        },
+        "required": [
+          "source_id",
+          "quote"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 8
+    },
+    "after_sales": {
+      "type": "object",
+      "properties": {
+        "issues": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "statement": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 400
+              },
+              "basis": {
+                "type": "string",
+                "enum": [
+                  "stated",
+                  "hypothesis"
+                ]
+              },
+              "evidence": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "turn_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "quote": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 500
+                    }
+                  },
+                  "required": [
+                    "turn_id",
+                    "quote"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 3
+              }
+            },
+            "required": [
+              "statement",
+              "basis",
+              "evidence"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0,
+          "maxItems": 6
+        },
+        "desired_outcome": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "statement": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 400
+              },
+              "basis": {
+                "type": "string",
+                "enum": [
+                  "stated",
+                  "hypothesis"
+                ]
+              },
+              "evidence": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "turn_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "quote": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 500
+                    }
+                  },
+                  "required": [
+                    "turn_id",
+                    "quote"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 3
+              }
+            },
+            "required": [
+              "statement",
+              "basis",
+              "evidence"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0,
+          "maxItems": 2
+        },
+        "attempted_steps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "statement": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 400
+              },
+              "basis": {
+                "type": "string",
+                "enum": [
+                  "stated",
+                  "hypothesis"
+                ]
+              },
+              "evidence": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "turn_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "quote": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 500
+                    }
+                  },
+                  "required": [
+                    "turn_id",
+                    "quote"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 3
+              }
+            },
+            "required": [
+              "statement",
+              "basis",
+              "evidence"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0,
+          "maxItems": 6
+        },
+        "impact": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "statement": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 400
+              },
+              "basis": {
+                "type": "string",
+                "enum": [
+                  "stated",
+                  "hypothesis"
+                ]
+              },
+              "evidence": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "turn_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "quote": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 500
+                    }
+                  },
+                  "required": [
+                    "turn_id",
+                    "quote"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 3
+              }
+            },
+            "required": [
+              "statement",
+              "basis",
+              "evidence"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0,
+          "maxItems": 2
+        }
+      },
+      "required": [
+        "issues",
+        "desired_outcome",
+        "attempted_steps",
+        "impact"
+      ],
+      "additionalProperties": false
+    },
+    "handoff": {
+      "type": "object",
+      "properties": {
+        "requested": {
+          "type": "boolean"
+        },
+        "reasons": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "minItems": 0,
+          "maxItems": 6
+        },
+        "priority": {
+          "type": "string",
+          "enum": [
+            "routine",
+            "high",
+            "urgent"
+          ]
+        },
+        "suggested_team": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "next_steps": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 400
+          },
+          "minItems": 0,
+          "maxItems": 5
+        }
+      },
+      "required": [
+        "requested",
+        "reasons",
+        "priority",
+        "suggested_team",
+        "next_steps"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "stage",
+    "summary",
+    "needs",
+    "emotion",
+    "missing_information",
+    "reply",
+    "questions",
+    "recommendations",
+    "next_action",
+    "citations",
+    "after_sales",
+    "handoff"
+  ],
+  "additionalProperties": false
+}

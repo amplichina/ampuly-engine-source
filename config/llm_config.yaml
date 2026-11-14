@@ -1,0 +1,13 @@
+# Public configuration template. Configure credentials locally; never commit them.
+llm:
+  default_model: deepseek/deepseek-chat
+  api_base: ''
+  api_key: ''
+  api_key_env: DEEPSEEK_API_KEY
+  temperature: 1
+  max_tokens: 32768
+  request_timeout: 300
+  request_retries: 0
+  routing: {}
+  fallback: {}
+  context_window: 128000

@@ -1,0 +1,62 @@
+/* Scoped to the observatory's decorative orb. No global selectors or fonts. */
+.ao-orb {
+  --ao-orb-rgb: 69, 183, 255;
+  position: relative;
+  isolation: isolate;
+  width: min(100%, 22rem);
+  aspect-ratio: 1;
+  min-width: 0;
+  margin-inline: auto;
+  overflow: hidden;
+  contain: layout paint;
+  pointer-events: none;
+}
+
+.ao-orb__canvas {
+  position: absolute;
+  display: block;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+}
+
+.ao-orb--webgl .ao-orb__canvas { opacity: 1; }
+.ao-orb--webgl .ao-orb__fallback { display: none; }
+
+.ao-orb__fallback {
+  position: absolute;
+  inset: 22%;
+  display: block;
+  border-radius: 50%;
+  border: 1px solid rgba(var(--ao-orb-rgb), 0.75);
+  background:
+    radial-gradient(ellipse at 33% 23%, rgba(229, 248, 255, 0.6) 0, transparent 19%),
+    radial-gradient(circle at 43% 42%, rgba(var(--ao-orb-rgb), 0.24), rgba(8, 26, 50, 0.98) 65%, rgba(var(--ao-orb-rgb), 0.5) 100%);
+  box-shadow:
+    inset -0.4rem -0.25rem 1.2rem rgba(var(--ao-orb-rgb), 0.35),
+    inset 0 0 0.5rem rgba(var(--ao-orb-rgb), 0.3),
+    0 0 2.3rem rgba(var(--ao-orb-rgb), 0.12);
+}
+
+.ao-orb__axis {
+  position: absolute;
+  display: block;
+  opacity: 0.45;
+}
+
+.ao-orb__axis--horizontal {
+  left: 8%; right: 8%; top: 50%; height: 1px;
+  background: linear-gradient(90deg, rgba(var(--ao-orb-rgb), 0.2), transparent 21%, transparent 79%, rgba(var(--ao-orb-rgb), 0.2));
+}
+
+.ao-orb__axis--vertical {
+  top: 8%; bottom: 8%; left: 50%; width: 1px;
+  background: linear-gradient(180deg, rgba(var(--ao-orb-rgb), 0.2), transparent 21%, transparent 79%, rgba(var(--ao-orb-rgb), 0.2));
+}
+
+.ao-orb[data-connected="false"] { filter: saturate(0.12); }
+
+@media (prefers-reduced-motion: reduce) {
+  .ao-orb *, .ao-orb *::before, .ao-orb *::after { animation: none !important; transition: none !important; }
+}

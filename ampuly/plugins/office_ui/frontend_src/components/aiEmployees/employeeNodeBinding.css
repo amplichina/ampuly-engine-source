@@ -1,0 +1,23 @@
+/* Host imports this scoped leaf stylesheet; existing colored node cards and canvas are unchanged. */
+.employee-node-binding { display: grid; gap: 14px; padding: 18px; color: var(--text); background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius); min-width: 0; overflow-wrap: anywhere; font-size: 13px; line-height: 1.55; }
+.employee-node-binding h3, .employee-node-binding h4, .employee-node-binding p { margin: 0; }
+.employee-node-binding h3 { font-size: 16px; }
+.employee-node-binding h4, .employee-node-binding legend { font-size: 13px; font-weight: 600; }
+.employee-node-binding p, .employee-node-binding small { color: var(--text-secondary); }
+.employee-node-binding__field, .employee-node-binding__group, .employee-node-binding__status, .employee-node-binding__confirmation, .employee-node-binding__action { display: grid; gap: 7px; min-width: 0; }
+.employee-node-binding__region, .employee-node-binding__confirmation { display: grid; gap: 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; min-width: 0; margin: 0; }
+.employee-node-binding__region > legend { padding: 0 6px; }
+.employee-node-binding__row, .employee-node-binding__actions { display: flex; flex-wrap: wrap; align-items: end; gap: 10px; }
+.employee-node-binding__row > label { flex: 1 1 220px; }
+.employee-node-binding__action { flex: 1 1 160px; align-self: start; }
+.employee-node-binding__mapping { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.employee-node-binding input, .employee-node-binding select, .employee-node-binding textarea { box-sizing: border-box; width: 100%; min-width: 0; color: var(--text); background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-xs); padding: 8px 10px; font: inherit; }
+.employee-node-binding textarea { resize: vertical; }
+.employee-node-binding button { width: fit-content; max-width: 100%; padding: 7px 11px; border: 1px solid var(--border); border-radius: var(--radius-xs); background: var(--surface); color: var(--text); font: inherit; cursor: pointer; }
+.employee-node-binding button:hover:not(:disabled) { background: var(--surface-hover); border-color: var(--border-hover); }
+.employee-node-binding button[data-action="save_configuration"]:not(:disabled) { color: var(--accent); border-color: var(--accent); }
+.employee-node-binding button:disabled, .employee-node-binding input:disabled, .employee-node-binding select:disabled, .employee-node-binding textarea:disabled { cursor: not-allowed; opacity: .6; }
+.employee-node-binding button:focus-visible, .employee-node-binding input:focus-visible, .employee-node-binding select:focus-visible, .employee-node-binding textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.employee-node-binding[data-result-state="unknown"] .employee-node-binding__status, .employee-node-binding[data-result-state="partial"] .employee-node-binding__status { border-left: 3px solid var(--yellow); padding-left: 10px; }
+.employee-node-binding[data-result-state="failed"] .employee-node-binding__status { border-left: 3px solid var(--red); padding-left: 10px; }
+@media (max-width: 600px) { .employee-node-binding { padding: 12px; } .employee-node-binding__mapping { grid-template-columns: 1fr; } }

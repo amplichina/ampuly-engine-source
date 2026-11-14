@@ -1,0 +1,70 @@
+Collaboration atlas 关系 view — upstream notice
+================================================
+
+observatory/collaboration/RelationsGraph.tsx renders through the npm packages
+react-force-graph-2d 1.29.2 and force-graph 1.52.0 (both MIT, Copyright (c) 2018
+Vasco Asturiano). They are installed dependencies (package.json / package-lock.json),
+not vendored source. Reviewed upstream commits (read-only clones under C:\w\refs):
+
+  https://github.com/vasturiano/react-force-graph  8c301c7a05b22c489b5724301bec52911b51d966
+  https://github.com/vasturiano/force-graph        0f059c894bf5b7504460b7028b00bc6e4d95f0d9
+
+The 视界熔炉 theme (collaboration/themes/ForgeTheme.tsx) renders through the npm
+package three 0.186.1 (MIT, Copyright © 2010-2026 three.js authors), including the
+post-processing passes under three/examples/jsm. Installed dependency, not vendored.
+
+Ideas only (no code, shader, asset or text used):
+  - useroneoneone/neural-vault (PolyForm Noncommercial 1.0.0): star-map look.
+  - cyberdaddyleo/agent-display 7a6b262d88befe91d0eda8ebb6b8059fc322166b
+    (PolyForm Noncommercial 1.0.0, Copyright (c) 2026 赛博老爸): the forge / loom /
+    paper-ops scene ideas. Read-only reference clone under C:\w\refs\agent-display.
+
+The upstream license texts are reproduced below, as they require.
+
+--- react-force-graph-2d, force-graph ---
+
+MIT License
+
+Copyright (c) 2018 Vasco Asturiano
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+--- three ---
+
+The MIT License
+
+Copyright © 2010-2026 three.js authors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.

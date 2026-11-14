@@ -1,0 +1,31 @@
+/* Host imports this once. All selectors are scoped; no canvas, navigation or global theme rules. */
+@import '../AIEmployeeEditor.css';
+@import './employeeLibrary.css';
+@import './employeeNodeBinding.css';
+@import './employeeOperations.css';
+
+.ai-employee-projection {
+  padding: 14px;
+  display: grid;
+  gap: 8px;
+  color: var(--text);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.ai-employee-projection h3, .ai-employee-projection p { margin: 0; }
+.ai-employee-projection small { color: var(--text-secondary); }
+.ai-employee-projection button {
+  width: fit-content;
+  color: var(--text);
+  background: var(--surface);
+  padding: 7px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  font: inherit;
+  cursor: pointer;
+}
+.ai-employee-projection button:disabled { opacity: .6; cursor: not-allowed; }
+.ai-employee-projection button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
